@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пополнение баланса</title>
+    <style>
+        body {
+            background-color: #f4f4f9;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .card-container {
+            margin: 20px 0;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .card-container img {
+            width: 250px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .instruction {
+            margin-top: 20px;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .instruction p {
+            margin-bottom: 10px;
+        }
+
+        .button-container {
+            margin-top: 30px;
+        }
+
+        .pop-up-button {
+            padding: 12px 30px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .pop-up-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Пополните баланс</h1>
+
+        <!-- Карта для пополнения -->
+        <div class="card-container">
+            <!-- Здесь вставьте изображение вашей карты -->
+            <img src="ggg.png" alt="Карта для пополнения">
+        </div>
+
+        <!-- Инструкция -->
+        <div class="instruction">
+            <p><strong>Как пополнить:</strong></p>
+            <p>1. Откройте ваше приложение для перевода денег.</p>
+            <p>2. Отправьте нужную сумму на указанную карту.</p>
+            <p>3. После перевода, ваш баланс будет обновлен.</p>
+        </div>
+
+        <!-- Кнопка для пополнения -->
+        <div class="button-container">
+            <button class="pop-up-button" onclick="showPaymentInstructions()">Понял, перевожу!</button>
+        </div>
+    </div>
+
+    <script>
+        function showPaymentInstructions() {
+            alert("Пожалуйста, переведите нужную сумму на указанную карту. После подтверждения, ваш баланс будет обновлен.");
+        }
+    </script>
+</body>
+</html>

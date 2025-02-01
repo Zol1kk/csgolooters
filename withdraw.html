@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS:GO Кейсы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #d9534f;
+        }
+        .balance {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .cases {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .case {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: 150px;
+            text-align: center;
+        }
+        .case:hover {
+            transform: scale(1.1);
+            background-color: #444;
+        }
+        .case img {
+            width: 100px;
+            height: 100px;
+        }
+        .open-case {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        .roulette {
+            width: 300px;
+            height: 100px;
+            overflow: hidden;
+            white-space: nowrap;
+            border: 2px solid white;
+            margin: 20px auto;
+            position: relative;
+        }
+        .items {
+            display: inline-block;
+            animation: roll 3s ease-out forwards;
+        }
+        .items img {
+            width: 100px;
+            height: 100px;
+            margin-right: 5px;
+        }
+        @keyframes roll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-1000px); }
+        }
+        .reward {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .reward img {
+            width: 150px;
+            margin-top: 10px;
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            text-align: center;
+        }
+        .close {
+            cursor: pointer;
+            color: #fff;
+            font-size: 24px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        .reward-modal {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .search {
+            margin: 20px auto;
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CS:GO КЕЙСЫ</h1>
+    <div class="balance">Баланс: <span id="balance">100</span>$</div>
+    <button onclick="addBalance()">Пополнить баланс</button>
+
+    <div>
+        <input class="search" type="text" id="searchInput" placeholder="Поиск скинов..." oninput="searchSkins()">
+    </div>
+
+    <div class="cases" id="caseContainer">
+        <!-- Кейсы будут динамически добавляться сюда -->
+    </div>
+
+    <div id="openCaseModal" class="open-case">
+        <h2>Открытие кейса...</h2>
+        <div class="roulette">
+            <div class="items" id="items"></div>
+        </div>
+        <button onclick="closeCase()">Закрыть</button>
+        <div id="reward" class="reward"></div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Пополнение баланса</h2>
+            <input type="number" id="amount" placeholder="Введите сумму" />
+            <button onclick="processPayment()">Пополнить</button>
+        </div>
+    </div>
+
+    <div id="rewardModal" class="reward-modal">
+        <h3>Поздравляем, ты выбил:</h3>
+        <img id="rewardImage" src="" alt="Reward">
+        <p id="rewardText"></p>
+        <button onclick="closeRewardModal()">Закрыть</button>
+    </div>
+
+    <script>
+        let balance = 100;
+
+        // Список скинов с фиксированными ценами
+        const skins = [
+            { name: "AWP | Dragon Lore", price: 10000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/cfd537bc019a3328edfb5f4a2d729170cd1c6f7ef1d402f0748b8fa6c5c80fa8.png" },
+            { name: "Karambit | Fade", price: 150000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/888fcf9a7b4ba5e28abdb14c8e0b2f34b3932b43fd52b3e1a122190ff767405d.png" },
+            { name: "M4A4 | Howl", price: 70000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/c1fd5a22d57c129408705ac22914cdbf3c4bc37076327d389d9bc6a5a83ad9b5.png" },
+            { name: "AK-47 | Fire Serpent", price: 50000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/2f8a647a299c0849c6be9084e00aeb4388d28e081db46a34c3bde25571029a3f.png" },
+            { name: "USP-S | Kill Confirmed", price: 4000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/c8fd2f9c6f5ad2d3b577045c199f139b3d87e2688b470982cf4f5429fdbe8ff1.png" },
+            { name: "M9 Bayonet | Damascus Steel", price: 300000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/ee57838a370f177c5d58e4bde7e6ca5863e0c0c1561d11d1758f70e5fa5a2e0a.png" },
+            { name: "AWP | Medusa", price: 50000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/6a16d6f0f3b404a87a8cb64f3ad9a3620da6e9b15e9477b29bc37e0a05c6b3c5.png" },
+            { name: "Butterfly Knife | Ultraviolet", price: 20000, img: "https://steamcommunity-a.akamaihd.net/economy/image/class/730/99df25fcb5b96f129ea52c8cccf07ffb3da957a7dbd8e2c66f6b688ab1b72e80.png" }
+        ];
+
+        function addBalance() {
+            window.location.href = "https://yourpaymentgateway.com";  // Замените на реальный сайт
+        }
+
+        function processPayment() {
+            let amount = parseInt(document.getElementById('amount').value);
+            if (!isNaN(amount) && amount > 0) {
+                balance += amount;
+                document.getElementById('balance').innerText = balance;
+                closeModal();
+                alert("Баланс пополнен на " + amount + "$!");
+            } else {
+                alert("Пожалуйста, введите правильную сумму.");
+            }
+        }
+
+        function openCase(price, maxWin, caseId) {
+            if (balance < price) {
+                alert("Недостаточно средств!");
+                return;
+            }
+
+            balance -= price;
+            document.getElementById('balance').innerText = balance;
+
+            let items = document.getElementById("items");
+            items.innerHTML = "";
+
+            for (let i = 0; i < 10; i++) {
+                let img = document.createElement("img");
+                img.src = skins[i % skins.length].img;
+                items.appendChild(img);
+            }
+
+            document.getElementById("openCaseModal").style.display = "block";
+            setTimeout(() => {
+                let winIndex = Math.floor(Math.random() * skins.length);
+                let winItem = skins[winIndex];
+                let winAmount = Math.floor(Math.random() * maxWin) + 1;
+
+                // Отображаем, что выпало
+                showReward(winItem, winAmount);
+            }, 3000);
+        }
+
+        function showReward(item, amount) {
+            document.getElementById("rewardImage").src = item.img;
+            document.getElementById("rewardText").innerHTML = `Ты выбил: ${item.name} <br> Цена: ${amount}$`;
+            document.getElementById("rewardModal").style.display = "flex";
+            balance += amount;
+            document.getElementById('balance').innerText = balance;
+        }
+
+        function closeRewardModal() {
+            document.getElementById("rewardModal").style.display = "none";
+        }
+
+        function closeCase() {
+            document.getElementById("openCaseModal").style.display = "none";
+        }
+
+        function searchSkins() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredSkins = skins.filter(skin => skin.name.toLowerCase().includes(searchTerm));
+
+            const caseContainer = document.getElementById('caseContainer');
+            caseContainer.innerHTML = '';  // Очистим контейнер с кейсами
+
+            filteredSkins.forEach(skin => {
+                let caseElement = document.createElement("div");
+                caseElement.classList.add("case");
+                caseElement.innerHTML = `
+                    <img src="${skin.img}" alt="${skin.name}">
+                    <p>${skin.name} - $${skin.price}</p>
+                `;
+                caseElement.onclick = () => openCase(skin.price, 10, skin.name);
+                caseContainer.appendChild(caseElement);
+            });
+        }
+
+        // Инициализация кейсов на странице
+        searchSkins(); // Показать все скины на старте
+    </script>
+</body>
+</html>
